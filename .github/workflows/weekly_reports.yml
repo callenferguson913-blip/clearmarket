@@ -1,0 +1,30 @@
+name: Weekly ClearMarket Reports
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"  # Every Monday at 8am Eastern (13:00 UTC)
+  workflow_dispatch:        # Allow manual trigger from GitHub UI
+
+jobs:
+  send-reports:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Send weekly reports
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python send_reports.py
