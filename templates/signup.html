@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up — ClearMarket</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">ClearMarket</a>
+    </nav>
+
+    <section class="form-page">
+        <h1>Get your free weekly report</h1>
+        <p class="subtitle">Takes 2 minutes. Your first report arrives Monday at 8am.</p>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="post" action="/signup">
+            <div class="field">
+                <label>Your Name</label>
+                <input type="text" name="name" placeholder="First name is fine" required>
+            </div>
+
+            <div class="field">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="you@example.com" required>
+            </div>
+
+            <div class="field">
+                <label>How much do you invest per week? ($)</label>
+                <input type="number" name="weekly_amount" placeholder="30" min="1" required>
+            </div>
+
+            <div class="field">
+                <label>What's your main investment goal?</label>
+                <select name="goal" required>
+                    <option value="">Select a goal</option>
+                    <option value="growth">Long-term growth — I want to build wealth over time</option>
+                    <option value="balanced">Balanced — I want growth but with some stability</option>
+                    <option value="safety">Safety — I want to protect my money first</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>How do you feel about risk?</label>
+                <select name="risk" required>
+                    <option value="">Select risk tolerance</option>
+                    <option value="low">Low — I don't like seeing my portfolio drop</option>
+                    <option value="medium">Medium — Some ups and downs are fine</option>
+                    <option value="high">High — I'm comfortable with volatility for bigger gains</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>What are you interested in investing in?</label>
+                <select name="interests" required>
+                    <option value="">Select your interest</option>
+                    <option value="etfs">ETFs — broad market funds, low risk, steady growth</option>
+                    <option value="tech">Tech stocks — high growth, higher risk</option>
+                    <option value="dividends">Dividend stocks — regular income + stability</option>
+                    <option value="energy">Energy sector — oil, gas, renewables</option>
+                    <option value="mixed">Mixed — show me a bit of everything</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>What do you currently hold? <span class="optional">(optional)</span></label>
+                <input type="text" name="holdings" placeholder="e.g. SPY, QQQ, AAPL">
+                <small>Comma separated ticker symbols. Leave blank if you're starting fresh.</small>
+            </div>
+
+            <button type="submit" class="btn-primary">Get My Free Reports →</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>ClearMarket is for educational purposes only and does not constitute financial advice.</p>
+    </footer>
+</body>
+</html>

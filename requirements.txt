@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+jinja2
+python-multipart
+sqlalchemy
+anthropic
+python-dotenv
+yfinance
+requests
+ruff
