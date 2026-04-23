@@ -192,7 +192,7 @@ def run():
     test_mode = os.getenv("TEST_MODE", "").lower() == "true"
     query = db.query(User).filter(User.active)
     if test_mode:
-        query = query.filter(User.email == "callenferguson913@icloud.com")
+        query = query.filter(User.email == "callenferguson@icloud.com")
         print("TEST MODE — only sending to callenferguson913@gmail.com\n")
     users = query.all()
     print(f"Sending reports to {len(users)} user(s)...\n")
