@@ -96,12 +96,21 @@ Address them by name. Be direct and personalized — not generic. Write like a k
 def generate_report(user: User, market_data: dict, news: list[str]) -> str:
     client = anthropic.Anthropic()
     prompt = build_prompt(user, market_data, news)
-    response = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=2048,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return response.content[0].text
+    for attempt in range(3):
+        try:
+            response = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=2048,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return response.content[0].text
+        except anthropic.APIStatusError as e:
+            if e.status_code == 529 and attempt < 2:
+                import time
+                print(f"  API overloaded, retrying in 30s... (attempt {attempt + 1}/3)")
+                time.sleep(30)
+            else:
+                raise
 
 
 def send_email(to_email: str, name: str, report: str):
