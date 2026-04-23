@@ -1,13 +1,13 @@
 import os
 import smtplib
-from datetime import date
+from datetime import date, datetime, timezone
 from email.mime.text import MIMEText
 
 import anthropic
 import yfinance as yf
 from dotenv import load_dotenv
 
-from src.database import SessionLocal, User
+from src.database import Recommendation, SessionLocal, User
 
 load_dotenv()
 
@@ -86,7 +86,8 @@ Write a personalized weekly investment report with these sections:
    - Risk level: Low / Medium / High
    - Suggested dollar amount
 
-4. FINAL RECOMMENDATION — Pick the best one for THIS investor. State what to buy, how much, and why it's right for their specific profile.
+4. FINAL RECOMMENDATION — Pick the best one for THIS investor. State what to buy, how much, and why it's right for their specific profile. End this section with a line in exactly this format:
+RECOMMENDED_TICKER: XXX
 
 5. WATCH LIST — 2-3 things to monitor this week.
 
@@ -111,6 +112,50 @@ def generate_report(user: User, market_data: dict, news: list[str]) -> str:
                 time.sleep(30)
             else:
                 raise
+
+
+def parse_ticker(report: str) -> str | None:
+    for line in report.splitlines():
+        if line.strip().startswith("RECOMMENDED_TICKER:"):
+            return line.split(":", 1)[1].strip().upper()
+    return None
+
+
+def get_current_price(ticker: str) -> float | None:
+    try:
+        return round(yf.Ticker(ticker).fast_info.last_price, 2)
+    except Exception:
+        return None
+
+
+def save_recommendation(db, user_id: int, ticker: str, week_of: datetime):
+    price = get_current_price(ticker)
+    rec = Recommendation(
+        user_id=user_id,
+        week_of=week_of,
+        ticker=ticker,
+        price_at_recommendation=price,
+    )
+    db.add(rec)
+    db.commit()
+    print(f"  Saved recommendation: {ticker} @ ${price}")
+
+
+def update_last_week_results(db, week_of: datetime):
+    from sqlalchemy import func
+    last_week = db.query(Recommendation).filter(
+        Recommendation.week_of < week_of,
+        Recommendation.price_one_week_later == None,
+    ).all()
+    for rec in last_week:
+        current_price = get_current_price(rec.ticker)
+        if current_price and rec.price_at_recommendation:
+            rec.price_one_week_later = current_price
+            rec.percent_change = round(
+                (current_price - rec.price_at_recommendation) / rec.price_at_recommendation * 100, 2
+            )
+            print(f"  Updated {rec.ticker}: {rec.percent_change:+.2f}%")
+    db.commit()
 
 
 def send_email(to_email: str, name: str, report: str):
@@ -138,6 +183,11 @@ def run():
     news = get_news()
 
     db = SessionLocal()
+    week_of = datetime.now(timezone.utc)
+
+    print("Updating last week's recommendation results...")
+    update_last_week_results(db, week_of)
+
     users = db.query(User).filter(User.active).all()
     print(f"Sending reports to {len(users)} user(s)...\n")
 
@@ -145,6 +195,9 @@ def run():
         print(f"  Generating report for {user.name}...")
         report = generate_report(user, market_data, news)
         send_email(user.email, user.name, report)
+        ticker = parse_ticker(report)
+        if ticker:
+            save_recommendation(db, user.id, ticker, week_of)
 
     db.close()
     print("\nDone.")

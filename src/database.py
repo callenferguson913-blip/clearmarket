@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, create_engine
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./clearmarket.db")
@@ -33,6 +33,18 @@ class User(Base):
     interests = Column(String, default="")        # e.g. tech, etfs, energy, dividends
     active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class Recommendation(Base):
+    __tablename__ = "recommendations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    week_of = Column(DateTime, nullable=False)
+    ticker = Column(String, nullable=False)
+    price_at_recommendation = Column(Float, nullable=True)
+    price_one_week_later = Column(Float, nullable=True)
+    percent_change = Column(Float, nullable=True)
 
 
 def init_db():
