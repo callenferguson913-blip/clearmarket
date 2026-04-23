@@ -189,7 +189,12 @@ def run():
     print("Updating last week's recommendation results...")
     update_last_week_results(db, week_of)
 
-    users = db.query(User).filter(User.active).all()
+    test_mode = os.getenv("TEST_MODE", "").lower() == "true"
+    query = db.query(User).filter(User.active)
+    if test_mode:
+        query = query.filter(User.email == "callenferguson913@gmail.com")
+        print("TEST MODE — only sending to callenferguson913@gmail.com\n")
+    users = query.all()
     print(f"Sending reports to {len(users)} user(s)...\n")
 
     for user in users:
