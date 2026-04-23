@@ -197,8 +197,11 @@ def run():
         report = generate_report(user, market_data, news)
         send_email(user.email, user.name, report)
         ticker = parse_ticker(report)
+        print(f"  Parsed ticker: {ticker}")
         if ticker:
             save_recommendation(db, user.id, ticker, week_of)
+        else:
+            print(f"  Warning: could not parse ticker from report")
 
     db.close()
     print("\nDone.")
