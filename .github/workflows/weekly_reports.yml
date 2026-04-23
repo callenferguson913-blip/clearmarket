@@ -27,4 +27,5 @@ jobs:
           EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
           EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TEST_MODE: ${{ vars.TEST_MODE }}
         run: python send_reports.py
