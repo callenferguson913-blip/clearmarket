@@ -1,5 +1,6 @@
 import os
 import smtplib
+from datetime import date
 from email.mime.text import MIMEText
 
 import anthropic
@@ -56,7 +57,9 @@ def build_prompt(user: User, market_data: dict, news: list[str]) -> str:
     risk_map = {"low": "Low — prefers stability", "medium": "Medium — comfortable with some volatility", "high": "High — comfortable with volatility for bigger gains"}
     interest_map = {"etfs": "ETFs and index funds", "tech": "Tech stocks", "dividends": "Dividend stocks", "energy": "Energy sector", "mixed": "Mixed — variety of asset types"}
 
+    today = date.today().strftime("%B %d, %Y")
     return f"""You are a personal investment advisor writing a weekly report for a specific investor.
+Today's date is {today}.
 
 INVESTOR PROFILE:
 - Name: {user.name}
