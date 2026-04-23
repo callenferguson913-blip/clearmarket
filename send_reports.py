@@ -115,9 +115,10 @@ def generate_report(user: User, market_data: dict, news: list[str]) -> str:
 
 
 def parse_ticker(report: str) -> str | None:
-    for line in report.splitlines():
-        if line.strip().startswith("RECOMMENDED_TICKER:"):
-            return line.split(":", 1)[1].strip().upper()
+    import re
+    match = re.search(r"RECOMMENDED_TICKER[:\s]+([A-Z]{1,5})", report.upper())
+    if match:
+        return match.group(1).strip()
     return None
 
 
