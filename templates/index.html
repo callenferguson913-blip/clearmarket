@@ -35,6 +35,22 @@
         <p class="signature">— Callen, Founder</p>
     </section>
 
+    {% if top_picks %}
+    <section class="performance">
+        <h2>Recent pick performance</h2>
+        <p class="perf-subtitle">Real recommendations sent to our users — here's how they did.</p>
+        <div class="perf-cards">
+            {% for pick in top_picks %}
+            <div class="perf-card {% if pick.percent_change >= 0 %}perf-up{% else %}perf-down{% endif %}">
+                <span class="perf-ticker">{{ pick.ticker }}</span>
+                <span class="perf-change">{% if pick.percent_change >= 0 %}+{% endif %}{{ "%.2f"|format(pick.percent_change) }}%</span>
+                <span class="perf-label">1-week return</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <section class="how">
         <h2>How it works</h2>
         <div class="steps">

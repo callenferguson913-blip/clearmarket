@@ -104,6 +104,77 @@ nav {
     margin-top: 24px;
 }
 
+/* PERFORMANCE */
+.performance {
+    text-align: center;
+    padding: 80px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.performance h2 {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+}
+
+.perf-subtitle {
+    color: #555;
+    margin-bottom: 48px;
+    font-size: 1.05rem;
+}
+
+.perf-cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.perf-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 36px;
+    border-radius: 12px;
+    min-width: 140px;
+}
+
+.perf-up {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+}
+
+.perf-down {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+}
+
+.perf-ticker {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.perf-change {
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.perf-up .perf-change {
+    color: #16a34a;
+}
+
+.perf-down .perf-change {
+    color: #dc2626;
+}
+
+.perf-label {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 6px;
+}
+
 /* HOW IT WORKS */
 .how {
     text-align: center;

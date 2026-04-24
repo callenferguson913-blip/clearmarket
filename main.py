@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from src.database import User, get_db, init_db
+from src.database import Recommendation, User, get_db, init_db
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -19,8 +19,19 @@ def startup():
 
 
 @app.get("/", response_class=HTMLResponse)
-def landing(request: Request):
-    return templates.TemplateResponse(request, "index.html")
+def landing(request: Request, db: Session = Depends(get_db)):
+    picks = (
+        db.query(Recommendation)
+        .filter(Recommendation.percent_change.isnot(None))
+        .order_by(Recommendation.percent_change.desc())
+        .all()
+    )
+    seen = {}
+    for p in picks:
+        if p.ticker not in seen:
+            seen[p.ticker] = p
+    top_picks = sorted(seen.values(), key=lambda x: x.percent_change, reverse=True)[:5]
+    return templates.TemplateResponse(request, "index.html", {"top_picks": top_picks})
 
 
 @app.get("/signup", response_class=HTMLResponse)
