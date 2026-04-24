@@ -20,18 +20,26 @@ def startup():
 
 @app.get("/", response_class=HTMLResponse)
 def landing(request: Request, db: Session = Depends(get_db)):
-    picks = (
-        db.query(Recommendation)
+    latest = (
+        db.query(Recommendation.week_of)
         .filter(Recommendation.percent_change.isnot(None))
-        .filter(Recommendation.percent_change > 0)
-        .order_by(Recommendation.percent_change.desc())
-        .all()
+        .order_by(Recommendation.week_of.desc())
+        .first()
     )
-    seen = {}
-    for p in picks:
-        if p.ticker not in seen:
-            seen[p.ticker] = p
-    top_picks = sorted(seen.values(), key=lambda x: x.percent_change, reverse=True)[:5]
+    top_picks = []
+    if latest:
+        picks = (
+            db.query(Recommendation)
+            .filter(Recommendation.week_of == latest.week_of)
+            .filter(Recommendation.percent_change > 0)
+            .order_by(Recommendation.percent_change.desc())
+            .all()
+        )
+        seen = {}
+        for p in picks:
+            if p.ticker not in seen:
+                seen[p.ticker] = p
+        top_picks = list(seen.values())[:5]
     return templates.TemplateResponse(request, "index.html", {"top_picks": top_picks})
 
 
