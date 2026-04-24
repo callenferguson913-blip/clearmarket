@@ -1,13 +1,14 @@
 import os
+import secrets
 import smtplib
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from email.mime.text import MIMEText
 
 import anthropic
 import yfinance as yf
 from dotenv import load_dotenv
 
-from src.database import Recommendation, SessionLocal, User
+from src.database import MagicToken, Recommendation, SessionLocal, User
 
 load_dotenv()
 
@@ -159,11 +160,24 @@ def update_last_week_results(db, week_of: datetime):
     db.commit()
 
 
-def send_email(to_email: str, name: str, report: str):
+def create_magic_token(db, user_id: int) -> str:
+    token = secrets.token_urlsafe(32)
+    magic = MagicToken(
+        token=token,
+        user_id=user_id,
+        expires_at=datetime.now(timezone.utc) + timedelta(days=7),
+    )
+    db.add(magic)
+    db.commit()
+    return token
+
+
+def send_email(to_email: str, name: str, report: str, settings_url: str):
     sender = os.getenv("EMAIL_ADDRESS")
     password = os.getenv("EMAIL_APP_PASSWORD")
 
-    msg = MIMEText(report)
+    body = report + f"\n\n---\nWant to update your investment preferences for next week?\n{settings_url}"
+    msg = MIMEText(body)
     msg["Subject"] = "📈 Your ClearMarket Weekly Report"
     msg["From"] = f"ClearMarket <{sender}>"
     msg["To"] = to_email
@@ -200,7 +214,10 @@ def run():
     for user in users:
         print(f"  Generating report for {user.name}...")
         report = generate_report(user, market_data, news)
-        send_email(user.email, user.name, report)
+        token = create_magic_token(db, user.id)
+        base_url = os.getenv("BASE_URL", "https://clearmarket.live")
+        settings_url = f"{base_url}/settings/{token}"
+        send_email(user.email, user.name, report, settings_url)
         ticker = parse_ticker(report)
         print(f"  Parsed ticker: {ticker}")
         if ticker:

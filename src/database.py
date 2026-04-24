@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, create_engine
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text, create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./clearmarket.db")
@@ -45,6 +45,16 @@ class Recommendation(Base):
     price_at_recommendation = Column(Float, nullable=True)
     price_one_week_later = Column(Float, nullable=True)
     percent_change = Column(Float, nullable=True)
+
+
+class MagicToken(Base):
+    __tablename__ = "magic_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(Text, unique=True, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used = Column(Boolean, default=False)
 
 
 def init_db():

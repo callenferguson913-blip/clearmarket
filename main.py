@@ -1,12 +1,13 @@
 import os
+from datetime import datetime, timezone
 
 from fastapi import Depends, FastAPI, Form, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from src.database import Recommendation, User, get_db, init_db
+from src.database import MagicToken, Recommendation, User, get_db, init_db
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -79,3 +80,37 @@ def signup(
     db.commit()
 
     return templates.TemplateResponse(request, "confirmed.html", {"name": name})
+
+
+@app.get("/settings/{token}", response_class=HTMLResponse)
+def settings_page(token: str, request: Request, db: Session = Depends(get_db)):
+    magic = db.query(MagicToken).filter(MagicToken.token == token, MagicToken.used == False).first()
+    if not magic or magic.expires_at < datetime.now(timezone.utc):
+        return HTMLResponse("<h2>This link has expired or is invalid. Check your next Monday email for a fresh link.</h2>", status_code=400)
+    user = db.query(User).filter(User.id == magic.user_id).first()
+    return templates.TemplateResponse(request, "settings.html", {"token": token, "user": user})
+
+
+@app.post("/settings/{token}", response_class=HTMLResponse)
+def settings_save(
+    token: str,
+    request: Request,
+    weekly_amount: int = Form(...),
+    goal: str = Form(...),
+    risk: str = Form(...),
+    interests: str = Form(...),
+    holdings: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    magic = db.query(MagicToken).filter(MagicToken.token == token, MagicToken.used == False).first()
+    if not magic or magic.expires_at < datetime.now(timezone.utc):
+        return HTMLResponse("<h2>This link has expired or is invalid.</h2>", status_code=400)
+    user = db.query(User).filter(User.id == magic.user_id).first()
+    user.weekly_amount = weekly_amount
+    user.goal = goal
+    user.risk = risk
+    user.interests = interests
+    user.holdings = holdings
+    magic.used = True
+    db.commit()
+    return templates.TemplateResponse(request, "settings_saved.html", {"name": user.name})

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Preferences — ClearMarket</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo">ClearMarket</a>
+    </nav>
+
+    <section class="form-page">
+        <h1>Update your preferences</h1>
+        <p class="subtitle">Hey {{ user.name }}, update anything below and we'll use it for next Monday's report.</p>
+
+        <form method="post" action="/settings/{{ token }}">
+            <div class="field">
+                <label>How much do you invest per week? ($)</label>
+                <input type="number" name="weekly_amount" value="{{ user.weekly_amount }}" min="1" required>
+            </div>
+
+            <div class="field">
+                <label>What's your main investment goal?</label>
+                <select name="goal" required>
+                    <option value="growth" {% if user.goal == "growth" %}selected{% endif %}>Long-term growth — I want to build wealth over time</option>
+                    <option value="balanced" {% if user.goal == "balanced" %}selected{% endif %}>Balanced — I want growth but with some stability</option>
+                    <option value="safety" {% if user.goal == "safety" %}selected{% endif %}>Safety — I want to protect my money first</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>How do you feel about risk?</label>
+                <select name="risk" required>
+                    <option value="low" {% if user.risk == "low" %}selected{% endif %}>Low — I don't like seeing my portfolio drop</option>
+                    <option value="medium" {% if user.risk == "medium" %}selected{% endif %}>Medium — Some ups and downs are fine</option>
+                    <option value="high" {% if user.risk == "high" %}selected{% endif %}>High — I'm comfortable with volatility for bigger gains</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>What are you interested in investing in?</label>
+                <select name="interests" required>
+                    <option value="etfs" {% if user.interests == "etfs" %}selected{% endif %}>ETFs — broad market funds, low risk, steady growth</option>
+                    <option value="tech" {% if user.interests == "tech" %}selected{% endif %}>Tech stocks — high growth, higher risk</option>
+                    <option value="dividends" {% if user.interests == "dividends" %}selected{% endif %}>Dividend stocks — regular income + stability</option>
+                    <option value="energy" {% if user.interests == "energy" %}selected{% endif %}>Energy sector — oil, gas, renewables</option>
+                    <option value="mixed" {% if user.interests == "mixed" %}selected{% endif %}>Mixed — show me a bit of everything</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>What do you currently hold? <span class="optional">(optional)</span></label>
+                <input type="text" name="holdings" value="{{ user.holdings }}" placeholder="e.g. SPY, QQQ, AAPL">
+                <small>Comma separated ticker symbols.</small>
+            </div>
+
+            <button type="submit" class="btn-primary">Save Preferences →</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>ClearMarket is for educational purposes only and does not constitute financial advice.</p>
+    </footer>
+</body>
+</html>
