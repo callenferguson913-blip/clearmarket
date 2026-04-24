@@ -85,7 +85,7 @@ def signup(
 @app.get("/settings/{token}", response_class=HTMLResponse)
 def settings_page(token: str, request: Request, db: Session = Depends(get_db)):
     magic = db.query(MagicToken).filter(MagicToken.token == token, MagicToken.used == False).first()
-    if not magic or magic.expires_at < datetime.now(timezone.utc):
+    if not magic or magic.expires_at < datetime.now():
         return HTMLResponse("<h2>This link has expired or is invalid. Check your next Monday email for a fresh link.</h2>", status_code=400)
     user = db.query(User).filter(User.id == magic.user_id).first()
     return templates.TemplateResponse(request, "settings.html", {"token": token, "user": user})
@@ -103,7 +103,7 @@ def settings_save(
     db: Session = Depends(get_db),
 ):
     magic = db.query(MagicToken).filter(MagicToken.token == token, MagicToken.used == False).first()
-    if not magic or magic.expires_at < datetime.now(timezone.utc):
+    if not magic or magic.expires_at < datetime.now():
         return HTMLResponse("<h2>This link has expired or is invalid.</h2>", status_code=400)
     user = db.query(User).filter(User.id == magic.user_id).first()
     user.weekly_amount = weekly_amount
