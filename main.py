@@ -23,6 +23,7 @@ def landing(request: Request, db: Session = Depends(get_db)):
     picks = (
         db.query(Recommendation)
         .filter(Recommendation.percent_change.isnot(None))
+        .filter(Recommendation.percent_change > 0)
         .order_by(Recommendation.percent_change.desc())
         .all()
     )
