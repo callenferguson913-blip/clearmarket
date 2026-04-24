@@ -175,6 +175,141 @@ nav {
     margin-top: 6px;
 }
 
+/* FEATURES */
+.features {
+    text-align: center;
+    padding: 80px 40px;
+    background: #f8f9fa;
+}
+
+.features h2 {
+    font-size: 1.8rem;
+    margin-bottom: 48px;
+}
+
+.feature-grid {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.feature-item {
+    flex: 1;
+    min-width: 180px;
+    max-width: 220px;
+    text-align: left;
+}
+
+.feature-icon {
+    font-size: 1.6rem;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.feature-item h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.feature-item p {
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* SAMPLE REPORT */
+.sample {
+    text-align: center;
+    padding: 80px 40px;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.sample h2 {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+}
+
+.sample-subtitle {
+    color: #555;
+    margin-bottom: 40px;
+    font-size: 1.05rem;
+}
+
+.sample-email {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    text-align: left;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+.sample-header {
+    background: #f3f4f6;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sample-from {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #1a1a1a;
+}
+
+.sample-subject {
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.sample-body {
+    padding: 28px 32px;
+    background: #fff;
+}
+
+.sample-body p {
+    color: #333;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.sample-greeting {
+    color: #666 !important;
+    font-size: 0.85rem !important;
+    margin-bottom: 24px !important;
+}
+
+.sample-footer {
+    color: #888 !important;
+    font-style: italic;
+    margin-top: 8px;
+    border-top: 1px solid #eee;
+    padding-top: 16px;
+}
+
+/* FOUNDER */
+.founder {
+    text-align: center;
+    padding: 60px 40px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.founder p {
+    font-size: 1.1rem;
+    color: #444;
+    font-style: italic;
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+
 /* HOW IT WORKS */
 .how {
     text-align: center;
