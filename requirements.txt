@@ -6,6 +6,6 @@ sqlalchemy
 psycopg2-binary
 anthropic==0.50.0
 python-dotenv
-yfinance
 requests
+newsapi-python
 ruff

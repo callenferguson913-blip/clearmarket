@@ -5,7 +5,8 @@ from datetime import date, datetime, timedelta, timezone
 from email.mime.text import MIMEText
 
 import anthropic
-import yfinance as yf
+import requests
+from newsapi import NewsApiClient
 from dotenv import load_dotenv
 
 from src.database import MagicToken, Recommendation, SessionLocal, User
@@ -13,19 +14,25 @@ from src.database import MagicToken, Recommendation, SessionLocal, User
 load_dotenv()
 
 MARKET_TICKERS = ["SPY", "QQQ", "VTI"]
+FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
 
 def get_market_data():
     result = {}
     for ticker in MARKET_TICKERS:
         try:
-            stock = yf.Ticker(ticker)
-            hist = stock.history(period="5d", timeout=10)
-            info = stock.fast_info
+            quote = requests.get(
+                "https://finnhub.io/api/v1/quote",
+                params={"symbol": ticker, "token": FINNHUB_API_KEY},
+                timeout=10,
+            ).json()
+
             result[ticker] = {
-                "price": round(info.last_price, 2) if info.last_price else None,
-                "week_high": round(hist["Close"].max(), 2) if not hist.empty else None,
-                "week_low": round(hist["Close"].min(), 2) if not hist.empty else None,
+                "price": round(quote["c"], 2) if quote.get("c") else None,
+                "day_high": round(quote["h"], 2) if quote.get("h") else None,
+                "day_low": round(quote["l"], 2) if quote.get("l") else None,
+                "prev_close": round(quote["pc"], 2) if quote.get("pc") else None,
             }
         except Exception as e:
             print(f"  Warning: could not fetch {ticker}: {e}")
@@ -34,22 +41,22 @@ def get_market_data():
 
 def get_news():
     headlines = []
-    for ticker in ["QQQ", "SPY"]:
-        try:
-            news = yf.Ticker(ticker).news
-            for item in (news or [])[:3]:
-                title = item.get("content", {}).get("title") or item.get("title")
-                if title:
-                    headlines.append(f"- {title}")
-        except Exception as e:
-            print(f"  Warning: could not fetch news for {ticker}: {e}")
+    try:
+        newsapi = NewsApiClient(api_key=NEWS_API_KEY)
+        response = newsapi.get_top_headlines(category="business", language="en", country="us", page_size=12)
+        for article in response.get("articles", []):
+            title = article.get("title")
+            if title and "[Removed]" not in title:
+                headlines.append(f"- {title}")
+    except Exception as e:
+        print(f"  Warning: could not fetch news: {e}")
     return headlines[:8]
 
 
 def build_prompt(user: User, market_data: dict, news: list[str]) -> str:
     market_text = ""
     for ticker, info in market_data.items():
-        market_text += f"  {ticker}: ${info['price']} | 5-day range: ${info['week_low']} - ${info['week_high']}\n"
+        market_text += f"  {ticker}: ${info['price']} | today's range: ${info['day_low']} - ${info['day_high']} | prev close: ${info['prev_close']}\n"
 
     news_text = "\n".join(news)
     holdings_text = user.holdings if user.holdings else "No current holdings — starting fresh"
@@ -125,7 +132,12 @@ def parse_ticker(report: str) -> str | None:
 
 def get_current_price(ticker: str) -> float | None:
     try:
-        return round(yf.Ticker(ticker).fast_info.last_price, 2)
+        quote = requests.get(
+            "https://finnhub.io/api/v1/quote",
+            params={"symbol": ticker, "token": FINNHUB_API_KEY},
+            timeout=10,
+        ).json()
+        return round(quote["c"], 2) if quote.get("c") else None
     except Exception:
         return None
 
