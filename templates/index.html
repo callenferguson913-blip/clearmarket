@@ -24,7 +24,7 @@
         <p class="perf-subtitle">Recommendations sent to our users this Monday, {{ this_week_date }}.</p>
         <div class="perf-cards">
             {% for pick in this_week_picks %}
-            <div class="perf-card">
+            <div class="perf-card perf-current">
                 <span class="perf-ticker">{{ pick.ticker }}</span>
                 <span class="perf-label">This week's pick</span>
             </div>

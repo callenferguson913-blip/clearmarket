@@ -149,6 +149,24 @@ nav {
     border: 1px solid #fecdd3;
 }
 
+.perf-current {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+.perf-current .perf-ticker {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+}
+
+.perf-current .perf-label {
+    color: #3b82f6;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 .perf-ticker {
     font-size: 1.2rem;
     font-weight: 700;
