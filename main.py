@@ -21,17 +21,17 @@ def startup():
 
 @app.get("/", response_class=HTMLResponse)
 def landing(request: Request, db: Session = Depends(get_db)):
-    latest = (
+    latest_perf = (
         db.query(Recommendation.week_of)
         .filter(Recommendation.percent_change.isnot(None))
         .order_by(Recommendation.week_of.desc())
         .first()
     )
     top_picks = []
-    if latest:
+    if latest_perf:
         picks = (
             db.query(Recommendation)
-            .filter(Recommendation.week_of == latest.week_of)
+            .filter(Recommendation.week_of == latest_perf.week_of)
             .filter(Recommendation.percent_change > 0)
             .order_by(Recommendation.percent_change.desc())
             .all()
@@ -41,7 +41,30 @@ def landing(request: Request, db: Session = Depends(get_db)):
             if p.ticker not in seen:
                 seen[p.ticker] = p
         top_picks = list(seen.values())[:5]
-    return templates.TemplateResponse(request, "index.html", {"top_picks": top_picks})
+
+    latest_week = (
+        db.query(Recommendation.week_of)
+        .order_by(Recommendation.week_of.desc())
+        .first()
+    )
+    this_week_picks = []
+    if latest_week and (not latest_perf or latest_week.week_of > latest_perf.week_of):
+        rows = (
+            db.query(Recommendation)
+            .filter(Recommendation.week_of == latest_week.week_of)
+            .all()
+        )
+        seen = {}
+        for r in rows:
+            if r.ticker not in seen:
+                seen[r.ticker] = r
+        this_week_picks = list(seen.values())[:5]
+
+    return templates.TemplateResponse(request, "index.html", {
+        "top_picks": top_picks,
+        "this_week_picks": this_week_picks,
+        "this_week_date": latest_week.week_of.strftime("%B %d, %Y") if latest_week else None,
+    })
 
 
 @app.get("/signup", response_class=HTMLResponse)

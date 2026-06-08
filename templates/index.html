@@ -18,7 +18,20 @@
         <a href="/signup" class="btn-primary">Get Your Free Report →</a>
     </section>
 
-    {% if top_picks %}
+    {% if this_week_picks %}
+    <section class="performance">
+        <h2>This week's picks</h2>
+        <p class="perf-subtitle">Recommendations sent to our users this Monday, {{ this_week_date }}.</p>
+        <div class="perf-cards">
+            {% for pick in this_week_picks %}
+            <div class="perf-card">
+                <span class="perf-ticker">{{ pick.ticker }}</span>
+                <span class="perf-label">This week's pick</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% elif top_picks %}
     <section class="performance">
         <h2>Recent pick performance</h2>
         <p class="perf-subtitle">Real recommendations sent to our users — here's how they did.</p>
